@@ -19,7 +19,6 @@ describe("PokemonService", () => {
     const userId = "user1";
     const mockTeam: Pokemon[] = [{ id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] }];
 
-    // Utilisation du cast pour accéder à userTeams
     const userTeams = (pokemonService as unknown as { userTeams: Map<string, Pokemon[]> }).userTeams;
     userTeams.set(userId, mockTeam);
 
@@ -33,7 +32,6 @@ describe("PokemonService", () => {
     const userId = "user1";
     const pokemon: Pokemon = { id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] };
 
-    // Utilisation du cast pour accéder à userTeams
     const userTeams = (pokemonService as unknown as { userTeams: Map<string, Pokemon[]> }).userTeams;
     userTeams.set(userId, [pokemon]);
 
@@ -56,7 +54,6 @@ describe("PokemonService", () => {
     ];
     const newPokemon: Pokemon = { id: 7, name: "Mewtwo", sprite: "mewtwo.png", types: ["Psychic"] };
 
-    // Utilisation du cast pour accéder à userTeams
     const userTeams = (pokemonService as unknown as { userTeams: Map<string, Pokemon[]> }).userTeams;
     userTeams.set(userId, team);
 

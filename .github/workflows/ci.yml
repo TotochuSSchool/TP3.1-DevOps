@@ -73,6 +73,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Format code
-        run: yarn format:write  # Utilise le script correct pour formater les fichiers
+        run: yarn format:write
       - name: Check code format
         run: yarn format:check
