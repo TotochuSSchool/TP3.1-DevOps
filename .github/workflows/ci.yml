@@ -54,15 +54,12 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v2
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: '20'
-      - name: Install dependencies
-        run: yarn install
-      - name: Build documentation
-        run: yarn docs:build
+          python-version: "3.13"
+      - run: pip install mkdocs
+      - run: mkdocs build
 
   format:
     runs-on: ubuntu-latest
