@@ -72,5 +72,7 @@ jobs:
           node-version: '20'
       - name: Install dependencies
         run: yarn install
+      - name: Format code
+        run: yarn format --write  # Applique les modifications de formatage
       - name: Check code format
-        run: yarn format:check
+        run: yarn format:check  # Vérifie que le formatage est correct
