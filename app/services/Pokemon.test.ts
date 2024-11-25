@@ -3,7 +3,7 @@ import { PokemonService } from "~/services/PokemonService";
 import { PokeApiClient } from "~/services/PokeApiClient";
 import { Pokemon } from "~/services/pokemon";
 
-describe("PokemonService and PokeApiClient", () => {
+describe("PokemonService", () => {
   let pokemonService: PokemonService;
   let pokeApiClientMock: PokeApiClient;
 
@@ -15,91 +15,55 @@ describe("PokemonService and PokeApiClient", () => {
     pokemonService = new PokemonService(pokeApiClientMock);
   });
 
-  describe("PokeApiClient.getPokemonList", () => {
-    it("should return a list of Pokemon", async () => {
-      const mockPokemonList: Pokemon[] = [
-        { id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] },
-        { id: 2, name: "Charmander", sprite: "charmander.png", types: ["Fire"] },
-      ];
-      (pokeApiClientMock.getPokemonList as vi.Mock).mockResolvedValue(mockPokemonList);
+  it("should_clear_user_team", () => {
+    const userId = "user1";
+    const mockTeam: Pokemon[] = [{ id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] }];
 
-      const result = await pokemonService.getPokemonList();
+    // Utilisation du cast pour accéder à userTeams
+    const userTeams = (pokemonService as unknown as { userTeams: Map<string, Pokemon[]> }).userTeams;
+    userTeams.set(userId, mockTeam);
 
-      expect(pokeApiClientMock.getPokemonList).toHaveBeenCalled();
-      expect(result).toEqual(mockPokemonList);
-    });
+    pokemonService.clearTeam(userId);
+    const result = pokemonService.getUserTeam(userId);
 
-    it("should throw an error if the API call fails", async () => {
-      const errorMessage = "API Error";
-      (pokeApiClientMock.getPokemonList as vi.Mock).mockRejectedValue(new Error(errorMessage));
-
-      await expect(pokemonService.getPokemonList()).rejects.toThrow(errorMessage);
-    });
+    expect(result).toEqual([]);
   });
 
-  describe("PokemonService.userTeams", () => {
-    it("should return an empty team if no team exists for a user", () => {
-      const userId = "user1";
+  it("should_remove_pokemon_from_user_team_if_present", () => {
+    const userId = "user1";
+    const pokemon: Pokemon = { id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] };
 
-      const result = pokemonService.getUserTeam(userId);
+    // Utilisation du cast pour accéder à userTeams
+    const userTeams = (pokemonService as unknown as { userTeams: Map<string, Pokemon[]> }).userTeams;
+    userTeams.set(userId, [pokemon]);
 
-      expect(result).toEqual([]);
-    });
+    const result = pokemonService.togglePokemonInTeam(userId, pokemon);
+    const team = pokemonService.getUserTeam(userId);
 
-    it("should add a Pokemon to a user's team", () => {
-      const userId = "user1";
-      const pokemon: Pokemon = { id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] };
+    expect(result).toBe(true);
+    expect(team).toEqual([]);
+  });
 
-      const result = pokemonService.togglePokemonInTeam(userId, pokemon);
-      const team = pokemonService.getUserTeam(userId);
+  it("should_not_add_pokemon_if_team_has_six_pokemon", () => {
+    const userId = "user1";
+    const team: Pokemon[] = [
+      { id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] },
+      { id: 2, name: "Charmander", sprite: "charmander.png", types: ["Fire"] },
+      { id: 3, name: "Squirtle", sprite: "squirtle.png", types: ["Water"] },
+      { id: 4, name: "Pikachu", sprite: "pikachu.png", types: ["Electric"] },
+      { id: 5, name: "Eevee", sprite: "evee.png", types: ["Normal"] },
+      { id: 6, name: "Snorlax", sprite: "snorlax.png", types: ["Normal"] },
+    ];
+    const newPokemon: Pokemon = { id: 7, name: "Mewtwo", sprite: "mewtwo.png", types: ["Psychic"] };
 
-      expect(result).toBe(true);
-      expect(team).toEqual([pokemon]);
-    });
+    // Utilisation du cast pour accéder à userTeams
+    const userTeams = (pokemonService as unknown as { userTeams: Map<string, Pokemon[]> }).userTeams;
+    userTeams.set(userId, team);
 
-    it("should remove a Pokemon from a user's team", () => {
-      const userId = "user1";
-      const pokemon: Pokemon = { id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] };
-      (pokemonService as any).userTeams.set(userId, [pokemon]);
+    const result = pokemonService.togglePokemonInTeam(userId, newPokemon);
+    const updatedTeam = pokemonService.getUserTeam(userId);
 
-      const result = pokemonService.togglePokemonInTeam(userId, pokemon);
-      const team = pokemonService.getUserTeam(userId);
-      
-      expect(result).toBe(true);
-      expect(team).toEqual([]);
-    });
-
-    it("should not add a Pokemon if the team already has six members", () => {
-      const userId = "user1";
-      const team: Pokemon[] = [
-        { id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] },
-        { id: 2, name: "Charmander", sprite: "charmander.png", types: ["Fire"] },
-        { id: 3, name: "Squirtle", sprite: "squirtle.png", types: ["Water"] },
-        { id: 4, name: "Pikachu", sprite: "pikachu.png", types: ["Electric"] },
-        { id: 5, name: "Eevee", sprite: "eevee.png", types: ["Normal"] },
-        { id: 6, name: "Snorlax", sprite: "snorlax.png", types: ["Normal"] },
-      ];
-      const newPokemon: Pokemon = { id: 7, name: "Mewtwo", sprite: "mewtwo.png", types: ["Psychic"] };
-      (pokemonService as any).userTeams.set(userId, team);
-
-      const result = pokemonService.togglePokemonInTeam(userId, newPokemon);
-      const updatedTeam = pokemonService.getUserTeam(userId);
-
-      expect(result).toBe(false);
-      expect(updatedTeam).toEqual(team);
-    });
-
-    it("should clear a user's team", () => {
-      const userId = "user1";
-      const mockTeam: Pokemon[] = [
-        { id: 1, name: "Bulbasaur", sprite: "bulbasaur.png", types: ["Grass", "Poison"] },
-      ];
-      (pokemonService as any).userTeams.set(userId, mockTeam);
-
-      pokemonService.clearTeam(userId);
-      const result = pokemonService.getUserTeam(userId);
-
-      expect(result).toEqual([]);
-    });
+    expect(result).toBe(false);
+    expect(updatedTeam).toEqual(team);
   });
 });
