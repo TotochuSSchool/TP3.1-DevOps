@@ -62,7 +62,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Build documentation
-        run: yarn docs
+        run: yarn docs:build
 
   format:
     runs-on: ubuntu-latest
