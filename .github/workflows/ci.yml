@@ -73,6 +73,6 @@ jobs:
       - name: Install dependencies
         run: yarn install
       - name: Format code
-        run: yarn format --write  # Applique les modifications de formatage
+        run: yarn format:write  # Utilise le script correct pour formater les fichiers
       - name: Check code format
-        run: yarn format:check  # Vérifie que le formatage est correct
+        run: yarn format:check
