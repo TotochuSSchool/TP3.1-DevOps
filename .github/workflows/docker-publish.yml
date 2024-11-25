@@ -3,7 +3,7 @@ name: Build and Push Docker Image
 on:
   push:
     branches:
-      - main  # Trigger the workflow on push to the main branch
+      - main
 
 jobs:
   build:
@@ -24,8 +24,8 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t your-dockerhub-username/your-image-name:latest -f docker/Dockerfile .
+          docker build -t totochusschool/tp3-devops:latest -f docker/Dockerfile .
 
       - name: Push Docker image
         run: |
-          docker push your-dockerhub-username/your-image-name:latest
+          docker push totochusschool/tp3-devops:latest
